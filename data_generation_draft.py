@@ -27,7 +27,7 @@ def main():
     #       in x and y (cm), and spectra for each detector.
     # This class will synthetically sample at the finer ticks, then aggregate the fine ticks into
     #    the course measurement at the set integration time.
-    synthetic_data = ResponseGenerator(
+    synthetic_data = DetectorResponseGenerator(
         angular_response=angular_response,
         path_response=path_response,
         source_strength_muCi=source_strength,
@@ -39,6 +39,14 @@ def main():
     plot_synthetic_data(synthetic_data)
     # export synthetic_data so other homies can import and use it.
     HDF5_export(synthetic_data)
+
+
+def plot_synthetic_data(data):
+    pass
+
+
+def HDF5_export(data):
+    pass
 
 main()
 
