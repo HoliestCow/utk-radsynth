@@ -10,6 +10,8 @@ class Grid2D(object):
         # All in meters
         leftandright = width/2
         upanddown = height/2
+        # TODO: Consider pixel objects.
+        # TODO: Consider Grid2D to be composed of pixel objects.
         px_x = np.linspace(-leftandright, leftandright, width/pixel_width)
         px_y = np.linspace(-upanddown, upanddown, height/pixel_height)
 
