@@ -10,12 +10,12 @@ def main():
     # System response as a function of source incident angle.
     # This is generated using a ring simulation around the system.
     # This is a function of the source type, fixed source radius, angular resolution.
-    angular_response = DetectorArray('ringsim_data.h5')
+    angular_response = AngularResponse('ringsim_data.h5')
 
     # Path response as a function of source position within the environment
     # Function of source type, x, y, system orientation,
     #     spatial resolution (every 100 cm ticks between two positions).
-    path_response = DetectorArray('pathsim_data.h5')
+    path_response = PathResponse('pathsim_data.h5')
 
     # Input parameters
     source_strength = 100  # microCurie
