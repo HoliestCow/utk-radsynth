@@ -3,6 +3,7 @@ from playground import Playground
 from items import Detector, Source
 import numpy as np
 
+
 def main():
 
     # Define items
@@ -11,16 +12,16 @@ def main():
     cs137_2 = Source(name='cs137_2', position=np.array([-25, -35]), isotope='cs137',
                      activity_mCi=0.25)
     # NOTE: Have these det positions created with a path generator.
-    det_pos0 = Detector(name='nai_pos0', position=np.array([40, -40]), material='NaI',
-                        detector_number=4, orientation=315)
-    det_pos1 = Detector(name='nai_pos1', position=np.array([25, -25]), material='NaI',
-                        detector_number=4, orientation=315)
+    det_pos0 = Detector(name='nai_pos0', position=np.array([45, -32]), material='NaI',
+                        detector_number=4, orientation=315, time=0)
+    det_pos1 = Detector(name='nai_pos1', position=np.array([20, -25]), material='NaI',
+                        detector_number=4, orientation=315, time=22)
     det_pos2 = Detector(name='nai_pos2', position=np.array([0, 0]), material='NaI',
-                        detector_number=4, orientation=315)
-    det_pos3 = Detector(name='nai_pos3', position=np.array([-25, 25]), material='NaI',
-                        detector_number=4, orientation=315)
+                        detector_number=4, orientation=315, time=22+35)
+    det_pos3 = Detector(name='nai_pos3', position=np.array([-15, 35]), material='NaI',
+                        detector_number=4, orientation=315, time=22+35+35)
     det_pos4 = Detector(name='nai_pos4', position=np.array([-40, 40]), material='NaI',
-                        detector_number=4, orientation=315)
+                        detector_number=4, orientation=315, time=22+35+35+30)
 
     # define environment
     environment = Playground()
@@ -36,7 +37,10 @@ def main():
     environment.add_tracked_item(det_pos3)
     environment.add_tracked_item(det_pos4)
 
-    fig, ax = environment.plot_grid()
+    environment.add_measurement_plan(waypoints=[det_pos0.name, det_pos1.name, det_pos2.name, det_pos3.name, det_pos4.name],
+                                     plan_name='detector_movement')
+
+    fig, ax = environment.plotme()
 
     fig.savefig('test_playground.png')
     return

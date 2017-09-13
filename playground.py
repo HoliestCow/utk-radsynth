@@ -1,7 +1,9 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-from items import Obstacle
+from items import Obstacle, Detector
+from pathing import Plan
+import matplotlib._color_data as mcd
 
 
 class Pixel(object):
@@ -22,6 +24,13 @@ class Playground(object):
     # note that the center of the grid is the bottom left of the center pixel
     #     this implies that ownership of pixel is inherited to the top right
     def __init__(self, width=100, height=100, pixel_width=1):
+        self.color_wheel = mcd.XKCD_COLORS
+        self.color_list = list(mcd.XKCD_COLORS.keys())[::30]
+
+        self.items = {}
+        self.plans = {}
+        self.color_counter = 0
+
         # All in meters
         self.width = width
         self.height = height
@@ -45,13 +54,12 @@ class Playground(object):
                 # along y (i)
                 px_coords = np.array([px_i[i], px_j[j]])
                 self.pixels[i, j] = Pixel(position=px_coords, pixel_width=self.pixel_width)
-        self.items = {}
-
         # True north reference point
         north_pole = Obstacle(name='north_pole', position=np.array([0, self.top_offrame]),
                               speed=0, orientation=0, isVisible=False)
         self.add_tracked_item(north_pole)
         self.north_pole = north_pole
+
         return
 
     def add_tracked_item(self, item):
@@ -65,12 +73,15 @@ class Playground(object):
             # have to define the index position for this playground and assign it.
             index_position = self.meter2index(item.position['meters'])
             item.position['index'] = index_position
+            item.color = self.color_wheel[self.color_list[self.color_counter]]
+            self.color_counter += 1
             self.items[item.name] = item
         return
 
     def remove_tracked_item(self, item):
         if item.name in self.items:
             del self.items[item.name]
+            self.color_counter -= 1
         else:
             print('Error: Item {} was not found in PlayGround.\
                   No changes were made.\n Tracked items: {}'.format(item.name,
@@ -143,49 +154,47 @@ class Playground(object):
         """ Returns the unit vector of the vector.  """
         return vector / np.linalg.norm(vector)
 
-    def plot_grid(self):
+    def plotme(self):
         fig, ax = plt.subplots()
         # make a little more margin
         ax.set_xlim(self.left_offrame, self.right_offrame)
         ax.set_ylim(self.bottom_offrame, self.top_offrame)
+        for key in self.plans:
+            plan = self.plans[key]
+            for i in range(len(plan.segments)):
+                segment = plan.segments[i]
+                color = segment['color']
+                coords = segment['position']
+                ax.plot(coords[:, 0], coords[:, 1], '.', c=color, markersize=1)
         for key in self.items:
             individual = self.items[key]
             if type(individual) is Obstacle:
                 if individual.isVisible is False:
                     continue
             coords = individual.position['meters']
-            ax.plot(coords[0], coords[1], individual.marker, label=individual.name)
-            if individual.orientation is not None:
-                phi = individual.orientation
-                print(phi)
-                # if phi < 0:
-                #     phi += 360
-                dx = 5 * np.sin(np.deg2rad(phi))
-                dy = 5 * np.cos(np.deg2rad(phi))
-                print(phi)
-                print(dx, dy)
-                ax.arrow(coords[0], coords[1], dx, dy)
-            # direction = self.angle_between
+            ax.plot(coords[0], coords[1], individual.marker, c=individual.color,
+                    label=individual.name)
+            # if type(individual) is Detector:
+            #     phi = individual.orientation
+            #     dx = 5 * np.sin(np.deg2rad(phi))
+            #     dy = 5 * np.cos(np.deg2rad(phi))
+            #     ax.arrow(coords[0], coords[1], dx, dy, color='k')
+        # for key in self.items:
+        #     individual = self.items[key]
+        #     coords = individual.position['meters']
+        #     if type(individual) is Detector:
+        #         # TODO: Don't know why this isn't working :/
+        #         phi = individual.orientation
+        #         dx = 5 * np.sin(np.deg2rad(phi))
+        #         dy = 5 * np.cos(np.deg2rad(phi))
+        #         ax.arrow(coords[0], coords[1], dx, dy, color='k')
         ax.set_xlabel('x_position (m)')
         ax.set_ylabel('y_position (m)')
         ax.legend(bbox_to_anchor=(1, 1), loc='upper right', ncol=1)
         return fig, ax
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    def add_measurement_plan(self, waypoints=[], plan_name=None, time_step=0.020):
+        object_list = []
+        for i in range(len(waypoints)):
+            object_list += [self.items[waypoints[i]]]
+        self.plans[plan_name] = Plan(object_list, time_step)
