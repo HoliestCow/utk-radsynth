@@ -22,7 +22,7 @@ class Obstacle(Item):
 class Source(Item):
 
     def __init__(self, name=None, position=None, isotope=None, activity_mCi=None,
-                 orientation=0, speed=0):
+                 orientation=None, speed=0):
         super().__init__(name=name, position=position,
                          orientation=orientation, speed=speed, marker='x')
         self.isotope = isotope

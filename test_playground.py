@@ -7,19 +7,20 @@ def main():
 
     # Define items
     cs137_1 = Source(name='cs137_1', position=np.array([20, 20]), isotope='cs137',
-                     activity_mCi=1, orientation=0)
+                     activity_mCi=1)
     cs137_2 = Source(name='cs137_2', position=np.array([-25, -35]), isotope='cs137',
-                     activity_mCi=0.25, orientation=0)
+                     activity_mCi=0.25)
+    # NOTE: Have these det positions created with a path generator.
     det_pos0 = Detector(name='nai_pos0', position=np.array([40, -40]), material='NaI',
-                        detector_number=4, orientation=0)
+                        detector_number=4, orientation=315)
     det_pos1 = Detector(name='nai_pos1', position=np.array([25, -25]), material='NaI',
-                        detector_number=4, orientation=90)
+                        detector_number=4, orientation=315)
     det_pos2 = Detector(name='nai_pos2', position=np.array([0, 0]), material='NaI',
-                        detector_number=4, orientation=180)
+                        detector_number=4, orientation=315)
     det_pos3 = Detector(name='nai_pos3', position=np.array([-25, 25]), material='NaI',
-                        detector_number=4, orientation=270)
+                        detector_number=4, orientation=315)
     det_pos4 = Detector(name='nai_pos4', position=np.array([-40, 40]), material='NaI',
-                        detector_number=4, orientation=0)
+                        detector_number=4, orientation=315)
 
     # define environment
     environment = Playground()

@@ -51,6 +51,7 @@ class Playground(object):
         north_pole = Obstacle(name='north_pole', position=np.array([0, self.top_offrame]),
                               speed=0, orientation=0, isVisible=False)
         self.add_tracked_item(north_pole)
+        self.north_pole = north_pole
         return
 
     def add_tracked_item(self, item):
@@ -125,11 +126,18 @@ class Playground(object):
         object2 = self.items[object2_name]
         pos_object1 = object1.position['meters']
         pos_object2 = object2.position['meters']
-        v1_u = self.unit_vector(pos_object1)
-        v2_u = self.unit_vector(pos_object2)
+        dpos = pos_object2 - pos_object1
+        anglefromnorth = (np.rad2deg(np.arctan(dpos[0] / dpos[1])))
+        # if relative_angle < 0:
+        #     relative_angle += 360
+        # elif relative_angle > 360:
+        #     relative_angel -= 360
+        # v1_u = self.unit_vector(pos_object1)
+        # v2_u = self.unit_vector(pos_object2)
+        # print(self.unit_vector(dpos))
         # TODO: Check to make sure this is the relative angle from Object1's perspective.
         # object 1 will usually be the detector.
-        return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0)) * 360 / (2*np.pi())
+        return anglefromnorth
 
     def unit_vector(self, vector):
         """ Returns the unit vector of the vector.  """
@@ -147,6 +155,16 @@ class Playground(object):
                     continue
             coords = individual.position['meters']
             ax.plot(coords[0], coords[1], individual.marker, label=individual.name)
+            if individual.orientation is not None:
+                phi = individual.orientation
+                print(phi)
+                # if phi < 0:
+                #     phi += 360
+                dx = 5 * np.sin(np.deg2rad(phi))
+                dy = 5 * np.cos(np.deg2rad(phi))
+                print(phi)
+                print(dx, dy)
+                ax.arrow(coords[0], coords[1], dx, dy)
             # direction = self.angle_between
         ax.set_xlabel('x_position (m)')
         ax.set_ylabel('y_position (m)')
