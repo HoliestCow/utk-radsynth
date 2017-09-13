@@ -1,24 +1,18 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+from items import Obstacle
 
 
 class Pixel(object):
     def __init__(self, position=None, pixel_width=None):
         self.pixel_width = pixel_width
-        self.position_bottom_left = position
-        self.position_center = (position[0] + (pixel_width / 2),
-                                position[1] + (pixel_width / 2))
-        self.items = {}
-
-    def add_item(self, item_name, item):
-        # Items are like sources or detector systems.
-        self.items[item_name] = item
-
-    def remove_item(self, item):
-        # Items are like sources or detector systems.
-        if item in self.items:
-            del self.items[item]
+        position_bottom_left = position
+        position_center = np.array([position[0] + (pixel_width / 2),
+                                    position[1] + (pixel_width / 2)])
+        self.position = {'bottom_left': position_bottom_left,
+                         'position_center': position_center}
+        self.source_score = 0
 
 
 class Playground(object):
@@ -29,8 +23,9 @@ class Playground(object):
     #     this implies that ownership of pixel is inherited to the top right
     def __init__(self, width=100, height=100, pixel_width=1):
         # All in meters
-        self.width = 100
-        self.height = 100
+        self.width = width
+        self.height = height
+        self.pixel_width = width
         leftandright = width / 2
         upanddown = height / 2
         self.left_offrame = -leftandright
@@ -38,42 +33,46 @@ class Playground(object):
         self.bottom_offrame = -upanddown
         self.top_offrame = upanddown
         # TODO: Consider pixel objects.
-        # TODO: Consider Grid2D to be composed of pixel objects.
-        px_i = np.linspace(-leftandright, leftandright, width / pixel_width)
-        px_j = np.linspace(-upanddown, upanddown, height / pixel_width)
+        px_i = np.linspace(self.left_offrame, self.right_offrame, self.width / pixel_width)
+        px_j = np.linspace(-self.bottom_offrame, self.top_offrame, self.height / pixel_width)
         # px_coords = np.meshgrid(px_x, px_y)
         # No clue what meshgrid does, so will code this with looperinos
+
         self.pixels = np.ndarray((len(px_i), len(px_j)), dtype=np.dtype(object))
         for j in range(px_j.size):
             # along the x (j)
             for i in range(px_i.size):
                 # along y (i)
-                px_coords = (px_i[i], px_j)
+                px_coords = np.array([px_i[i], px_j[j]])
                 self.pixels[i, j] = Pixel(position=px_coords, pixel_width=self.pixel_width)
-
         self.items = {}
+
+        # True north reference point
+        north_pole = Obstacle(name='north_pole', position=np.array([0, self.top_offrame]),
+                              speed=0, orientation=0, isVisible=False)
+        self.add_tracked_item(north_pole)
         return
 
-    def add_tracked_item(self, item_name, item):
+    def add_tracked_item(self, item):
         # item_name is a string
         # item is an Item object
-        if item_name in self.items:
+        if item.name in self.items:
             print('Error: {} already present in Playground.\
-                   Item was not added nor overwritten.\n Tracked items: {}'.format(item_name,
+                   Item was not added nor overwritten.\n Tracked items: {}'.format(item.name,
                                                                                    self.items))
         else:
             # have to define the index position for this playground and assign it.
             index_position = self.meter2index(item.position['meters'])
             item.position['index'] = index_position
-            self.items[item_name] = item
+            self.items[item.name] = item
         return
 
-    def remove_tracked_item(self, item_name):
-        if item_name in self.items:
-            del self.items[item_name]
+    def remove_tracked_item(self, item):
+        if item.name in self.items:
+            del self.items[item.name]
         else:
             print('Error: Item {} was not found in PlayGround.\
-                  No changes were made.\n Tracked items: {}'.format(item_name,
+                  No changes were made.\n Tracked items: {}'.format(item.name,
                                                                     self.items))
         return
 
@@ -137,15 +136,22 @@ class Playground(object):
         return vector / np.linalg.norm(vector)
 
     def plot_grid(self):
-        fig = plt.figure()
-        ax = fig.get_gca()
+        fig, ax = plt.subplots()
+        # make a little more margin
         ax.set_xlim(self.left_offrame, self.right_offrame)
         ax.set_ylim(self.bottom_offrame, self.top_offrame)
         for key in self.items:
             individual = self.items[key]
+            if type(individual) is Obstacle:
+                if individual.isVisible is False:
+                    continue
             coords = individual.position['meters']
             ax.plot(coords[0], coords[1], individual.marker, label=individual.name)
-        return
+            # direction = self.angle_between
+        ax.set_xlabel('x_position (m)')
+        ax.set_ylabel('y_position (m)')
+        ax.legend(bbox_to_anchor=(1, 1), loc='upper right', ncol=1)
+        return fig, ax
 
 
 
