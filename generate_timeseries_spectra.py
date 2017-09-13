@@ -1,10 +1,13 @@
 # python 3.6
-from data_classes import DetectorArray
+from angular_response import AngularResponse
+from path_response import PathResponse
 from generators import DetectorResponseGenerator
+from grid_2d import Playground
 
 # This is the rough draft for the ultimate calling script.
 # This calling script will create an hdf5 file filled with time stamped spectra
 # for each detector for a given detector array or system.
+
 
 def main():
     # System response as a function of source incident angle.
@@ -16,6 +19,9 @@ def main():
     # Function of source type, x, y, system orientation,
     #     spatial resolution (every 100 cm ticks between two positions).
     path_response = PathResponse('pathsim_data.h5')
+
+    # Playground bois
+    environment = Playground(width=100, height=100, pixel_width=1)
 
     # Input parameters
     source_strength = 100  # microCurie
