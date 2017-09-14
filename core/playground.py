@@ -1,8 +1,11 @@
 
+import sys
+sys.path.append('/home/holiestcow/Documents/2017_fall/ne697_hayward')
+
 import numpy as np
 import matplotlib.pylab as plt
-from items import Obstacle, Detector
-from pathing import Plan
+from radsynth.core.items import Obstacle, Detector
+from radsynth.core.pathing import Plan
 import matplotlib._color_data as mcd
 # from matplotlib import pylab
 

@@ -1,6 +1,9 @@
 
-from playground import Playground
-from items import Detector, Source
+import sys
+sys.path.append('/home/holiestcow/Documents/2017_fall/ne697_hayward')
+
+from radsynth.core.playground import Playground
+from radsynth.core.items import Detector, Source
 import numpy as np
 
 
