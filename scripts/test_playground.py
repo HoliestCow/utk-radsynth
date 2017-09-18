@@ -21,11 +21,11 @@ def main():
     det_pos1 = Detector(name='nai_pos1', position=np.array([20, -25]), material='NaI',
                         detector_number=4, orientation=315, time=22)
     det_pos2 = Detector(name='nai_pos2', position=np.array([0, 0]), material='NaI',
-                        detector_number=4, orientation=315, time=22+35)
+                        detector_number=4, orientation=315, time=22 + 35)
     det_pos3 = Detector(name='nai_pos3', position=np.array([-15, 35]), material='NaI',
-                        detector_number=4, orientation=315, time=22+35+35)
+                        detector_number=4, orientation=315, time=22 + 35 + 35)
     det_pos4 = Detector(name='nai_pos4', position=np.array([-40, 40]), material='NaI',
-                        detector_number=4, orientation=315, time=22+35+35+30)
+                        detector_number=4, orientation=315, time=22 + 35 + 35 + 30)
 
     # define environment
     environment = Playground()
@@ -41,7 +41,8 @@ def main():
     environment.add_tracked_item(det_pos3)
     environment.add_tracked_item(det_pos4)
 
-    environment.add_measurement_plan(waypoints=[det_pos0.name, det_pos1.name, det_pos2.name, det_pos3.name, det_pos4.name],
+    environment.add_measurement_plan(waypoints=[det_pos0.name, det_pos1.name, det_pos2.name,
+                                                det_pos3.name, det_pos4.name],
                                      plan_name='detector_movement')
 
     fig, ax = environment.plotme()
