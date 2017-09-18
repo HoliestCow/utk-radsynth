@@ -158,7 +158,8 @@ class Playground(object):
         """ Returns the unit vector of the vector.  """
         return vector / np.linalg.norm(vector)
 
-    def plotme(self, plot_height=6, plot_width=8, legend_position=(1.5, 1), legend_column_number=1):
+    def plotme(self, plot_height=6, plot_width=8,
+               legend_position=(1.5, 1), legend_column_number=1):
         fig, ax = plt.subplots()
         fig.set_size_inches(plot_width, plot_height)
         # make a little more margin
@@ -166,11 +167,19 @@ class Playground(object):
         ax.set_ylim(self.bottom_offrame, self.top_offrame)
         for key in self.plans:
             plan = self.plans[key]
-            for i in range(len(plan.segments)):
-                segment = plan.segments[i]
-                color = segment['color']
-                coords = segment['position']
-                ax.plot(coords[:, 0], coords[:, 1], '.', c=color, markersize=1)
+            # for i in range(len(plan.segments)):
+            #     segment = plan.segments[i]
+            #     color = segment['color']
+            #     coords = segment['position']
+            #     ax.plot(coords[:, 0], coords[:, 1], '.', c=color, markersize=1)
+            for detector in plan.get_refined_object_list():
+                ax.scatter(detector.position['meters'][0], detector.position['meters'][1],
+                           c=detector.color, s=4)
+                phi = detector.orientation
+                dx = np.sin(np.deg2rad(phi))
+                dy = np.cos(np.deg2rad(phi))
+                ax.arrow(detector.position['meters'][0], detector.position['meters'][1],
+                         dx, dy, color='k', lw=0.2)
         for key in self.items:
             individual = self.items[key]
             if type(individual) is Obstacle:
@@ -184,15 +193,15 @@ class Playground(object):
             #     dx = 5 * np.sin(np.deg2rad(phi))
             #     dy = 5 * np.cos(np.deg2rad(phi))
             #     ax.arrow(coords[0], coords[1], dx, dy, color='k')
-        for key in self.items:
-            individual = self.items[key]
-            coords = individual.position['meters']
-            if type(individual) is Detector:
-                # TODO: Don't know why this isn't working :/
-                phi = individual.orientation
-                dx = 5 * np.sin(np.deg2rad(phi))
-                dy = 5 * np.cos(np.deg2rad(phi))
-                ax.arrow(coords[0], coords[1], dx, dy, color='k')
+        # for key in self.items:
+        #     individual = self.items[key]
+        #     coords = individual.position['meters']
+        #     if type(individual) is Detector:
+        #         # TODO: Don't know why this isn't working :/
+        #         phi = individual.orientation
+        #         dx = 5 * np.sin(np.deg2rad(phi))
+        #         dy = 5 * np.cos(np.deg2rad(phi))
+        #         ax.arrow(coords[0], coords[1], dx, dy, color='k')
         ax.set_xlabel('x_position (m)')
         ax.set_ylabel('y_position (m)')
         # ax.legend(bbox_to_anchor=(1, 1), loc='upper right', ncol=1)
@@ -204,7 +213,7 @@ class Playground(object):
             bbox_inches='tight')
         return fig, ax
 
-    def add_measurement_plan(self, waypoints=[], plan_name=None, time_step=0.020):
+    def add_measurement_plan(self, waypoints=[], plan_name=None, time_step=0.2):
         object_list = []
         for i in range(len(waypoints)):
             object_list += [self.items[waypoints[i]]]

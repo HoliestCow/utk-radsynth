@@ -53,11 +53,12 @@ class Source(Item):
 
 class Detector(Item):
     def __init__(self, name=None, position=None, material=None, detector_number=1,
-                 orientation=0, speed=0, time=None):
+                 orientation=0, speed=0, time=None, color=None):
         super().__init__(name=name, position=position,
-                         orientation=orientation, speed=speed, marker='o')
+                         orientation=orientation, speed=speed, marker='o', color=color)
         self.material = material
         self.detector_number = detector_number
         self.orientation = orientation
         self.time = time
+        self.mean_spectrum = np.array([])  # This is where stuff will be sampled from.
         return
