@@ -172,7 +172,7 @@ class Playground(object):
             #     color = segment['color']
             #     coords = segment['position']
             #     ax.plot(coords[:, 0], coords[:, 1], '.', c=color, markersize=1)
-            for detector in plan.get_refined_object_list():
+            for detector in plan.physical_object_list:
                 ax.scatter(detector.position['meters'][0], detector.position['meters'][1],
                            c=detector.color, s=4)
                 phi = detector.orientation
@@ -213,8 +213,9 @@ class Playground(object):
             bbox_inches='tight')
         return fig, ax
 
-    def add_measurement_plan(self, waypoints=[], plan_name=None, time_step=0.2):
+    def add_measurement_plan(self, waypoints=[], plan_name=None,
+                             time_step=1, sub_time_step=0.2):
         object_list = []
         for i in range(len(waypoints)):
             object_list += [self.items[waypoints[i]]]
-        self.plans[plan_name] = Plan(object_list, time_step)
+        self.plans[plan_name] = Plan(object_list, time_step, sub_time_step)

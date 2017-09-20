@@ -43,7 +43,12 @@ def main():
     environment.add_measurement_plan(waypoints=[det_pos0.name, det_pos1.name, det_pos2.name,
                                                 det_pos3.name, det_pos4.name],
                                      plan_name='detector_movement',
-                                     time_step=1)
+                                     time_step=1,
+                                     sub_time_step=0.2)
+    # print(environment.plans['detector_movement'].observed_object_list)
+    # print(environment.plans['detector_movement'].physical_object_list)
+    # print(len(environment.plans['detector_movement'].observed_object_list))
+    # print(len(environment.plans['detector_movement'].physical_object_list))
 
     fig, ax = environment.plotme()
 
