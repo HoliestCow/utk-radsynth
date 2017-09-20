@@ -174,12 +174,15 @@ class Playground(object):
             #     ax.plot(coords[:, 0], coords[:, 1], '.', c=color, markersize=1)
             for detector in plan.physical_object_list:
                 ax.scatter(detector.position['meters'][0], detector.position['meters'][1],
-                           c=detector.color, s=4)
+                           c=detector.color, s=1)
                 phi = detector.orientation
                 dx = np.sin(np.deg2rad(phi))
                 dy = np.cos(np.deg2rad(phi))
                 ax.arrow(detector.position['meters'][0], detector.position['meters'][1],
                          dx, dy, color='k', lw=0.2)
+            for detector in plan.observed_object_list:
+                ax.scatter(detector.position['meters'][0], detector.position['meters'][1],
+                           c=detector.color, s=4)
         for key in self.items:
             individual = self.items[key]
             if type(individual) is Obstacle:
