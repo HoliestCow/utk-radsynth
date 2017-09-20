@@ -208,10 +208,10 @@ class Playground(object):
         art = []
         lgd = plt.legend(loc=9, bbox_to_anchor=legend_position, ncol=legend_column_number)
         art.append(lgd)
-        plt.savefig(
-            'test.png', additional_artists=art,
-            bbox_inches='tight')
-        return fig, ax
+        # plt.savefig(
+        #     'test.png', additional_artists=art,
+        #     bbox_inches='tight')
+        return fig, ax, art
 
     def add_measurement_plan(self, waypoints=[], plan_name=None,
                              time_step=1, sub_time_step=0.2):

@@ -50,9 +50,8 @@ def main():
     # print(len(environment.plans['detector_movement'].observed_object_list))
     # print(len(environment.plans['detector_movement'].physical_object_list))
 
-    fig, ax = environment.plotme()
-
-    fig.savefig('test_playground.png')
+    fig, ax, art = environment.plotme()
+    fig.savefig('test_playground.png', additional_artists=art, bbox_inches='tight')
     return
 
 main()
