@@ -60,5 +60,14 @@ class Detector(Item):
         self.detector_number = detector_number
         self.orientation = orientation
         self.time = time
+        # mean spectrum should be a 1d array.
         self.mean_spectrum = np.array([])  # This is where stuff will be sampled from.
+        self.energy_resolution = np.array([])  # this is where the energy resolution as a function of energy resides
         return
+
+    # def generate_samples(self, n=1):
+    #     # n is number of samples
+    #     # out = np.random.poisson(lam=self.detector.mean_spectrum,
+    #     #                         size=(n, len(self.mean_spectrum)))
+    #     return out  # size = (samples, bins)
+
