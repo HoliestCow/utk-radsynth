@@ -335,6 +335,7 @@ class Playground(object):
                 # I have to convert from my coordinate system to GEANT4
                 single_f.write('/ddli/gun/angle {} degree\n'.format(
                     self.angle_between_2geant4(detector.name, source.name)))
+                single_f.write('/ddli/geometry/reload\n')
                 single_f.write('/run/beamOn {}\n\n'.format(nparticles))
             single_f.close()
 
