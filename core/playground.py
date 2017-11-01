@@ -4,9 +4,11 @@ sys.path.append('/home/holiestcow/Documents/2017_fall/ne697_hayward')
 
 import numpy as np
 import matplotlib.pylab as plt
-from radsynth.core.items import Obstacle, Detector
+from radsynth.core.items import Obstacle, Detector, Source
 from radsynth.core.pathing import Plan
 import matplotlib._color_data as mcd
+import os.path
+import textwrap
 # from matplotlib import pylab
 
 
@@ -92,8 +94,41 @@ class Playground(object):
                                                                     self.items))
         return
 
-    def get_tracked_items(self):
-        return self.items
+    def get_tracked_objects(self, object_type=None):
+        if object_type is None:
+            return self.items
+        out = []
+        for item in self.items:
+            if isinstance(self.items[item], object_type):
+                out += [self.items[item]]
+        return out
+
+    # def get_tracked_items(self):
+    #     return self.items
+    #
+    # def get_tracked_sources(self):
+    #     stuff = self.get_tracked_items()
+    #     out = []
+    #     for item in stuff:
+    #         if isinstance(self.items[item], Source):
+    #             out += [self.items[item]]
+    #     return out
+    #
+    # def get_tracked_detectors(self):
+    #     stuff = self.get_tracked_items()
+    #     out = []
+    #     for item in stuff:
+    #         if isinstance(self.items[item], Detector):
+    #             out += [self.items[item]]
+    #     return out
+    #
+    # def get_tracked_plans(self):
+    #     stuff = self.get_tracked_items()
+    #     out = []
+    #     for item in stuff:
+    #         if isinstance(self.items[item], Plan):
+    #             out += [self.items[item]]
+    # return out
 
     def meter2index(self, position):
         # position should be a np.array of floats
@@ -120,12 +155,16 @@ class Playground(object):
         return position
 
     def distance_between(self, object1_name, object2_name):
-        if object1_name not in self.items:
-            raise ValueError('Error: Object {} not tracked within Playground'.format(object1_name))
-        elif object2_name not in self.items:
-            raise ValueError('Error: Object {} not tracked within Playground'.format(object2_name))
-        object1 = self.items[object1_name]
-        object2 = self.items[object2_name]
+        if isinstance(object1_name, str) and isinstance(object2_name, str):
+            if object1_name not in self.items:
+                raise ValueError('Error: Object {} not tracked within Playground'.format(object1_name))
+            elif object2_name not in self.items:
+                raise ValueError('Error: Object {} not tracked within Playground'.format(object2_name))
+            object1 = self.items[object1_name]
+            object2 = self.items[object2_name]
+        # else:
+        #     object1 = object1_name
+        #     object2 = object2_name
         pos_object1 = object1.position['meters']
         pos_object2 = object2.position['meters']
         distance = np.linalg.norm(pos_object1 - pos_object2)
@@ -133,26 +172,29 @@ class Playground(object):
 
     def angle_between(self, object1_name, object2_name):
         # Angle of object2 relative to object1
-        if object1_name not in self.items:
-            raise ValueError('Error: Object {} not tracked within Playground'.format(object1_name))
-        elif object2_name not in self.items:
-            raise ValueError('Error: Object {} not tracked within Playground'.format(object2_name))
-        object1 = self.items[object1_name]
-        object2 = self.items[object2_name]
+        if isinstance(object1_name, str) and isinstance(object2_name, str):
+            if object1_name not in self.items:
+                raise ValueError('Error: Object {} not tracked within Playground'.format(object1_name.name))
+            elif object2_name not in self.items:
+                raise ValueError('Error: Object {} not tracked within Playground'.format(object2_name.name))
+            object1 = self.items[object1_name]
+            object2 = self.items[object2_name]
+        # else:
+        #     object1 = object1_name
+        #     object2 = object2_name
         pos_object1 = object1.position['meters']
         pos_object2 = object2.position['meters']
         dpos = pos_object2 - pos_object1
-        anglefromnorth = (np.rad2deg(np.arctan(dpos[0] / dpos[1])))
-        # if relative_angle < 0:
-        #     relative_angle += 360
-        # elif relative_angle > 360:
-        #     relative_angel -= 360
-        # v1_u = self.unit_vector(pos_object1)
-        # v2_u = self.unit_vector(pos_object2)
-        # print(self.unit_vector(dpos))
-        # TODO: Check to make sure this is the relative angle from Object1's perspective.
-        # object 1 will usually be the detector.
-        return anglefromnorth
+        angle = np.rad2deg(np.arctan(dpos[1] / dpos[0]))
+        if dpos[0] >= 0 and dpos[1] >= 0:
+            angle = 90 - angle
+        elif dpos[0] <= 0 and dpos[1] <= 0:
+            angle = 270 - angle
+        elif dpos[0] >= 0 and dpos[1] <= 0:
+            angle = 90 - angle
+        elif dpos[0] <= 0 and dpos[1] >= 0:
+            angle = 270 - angle
+        return angle
 
     def unit_vector(self, vector):
         """ Returns the unit vector of the vector.  """
@@ -196,6 +238,12 @@ class Playground(object):
             #     dx = 5 * np.sin(np.deg2rad(phi))
             #     dy = 5 * np.cos(np.deg2rad(phi))
             #     ax.arrow(coords[0], coords[1], dx, dy, color='k')
+        for detector in self.get_tracked_objects(object_type=Detector):
+            for source in self.get_tracked_objects(object_type=Source):
+                phi = self.angle_between(detector.name, source.name)
+                dx = 5 * np.sin(np.deg2rad(phi))
+                dy = 5 * np.cos(np.deg2rad(phi))
+                ax.arrow(detector.position['meters'][0], detector.position['meters'][1], dx, dy, color='k')
         # for key in self.items:
         #     individual = self.items[key]
         #     coords = individual.position['meters']
@@ -221,4 +269,131 @@ class Playground(object):
         object_list = []
         for i in range(len(waypoints)):
             object_list += [self.items[waypoints[i]]]
-        self.plans[plan_name] = Plan(object_list, time_step, sub_time_step)
+        self.plans[plan_name] = Plan(name=plan_name, listofobjects=object_list, time_step=time_step, sub_time_step=sub_time_step)
+
+        for detector in self.plans[plan_name].physical_object_list:
+            self.add_tracked_item(detector)
+        return
+
+    def setup_ring_simulation(self, radius=10, dphi=1, phi_min=0, phi_max=360,
+                              object_prefix='fullspan', isotope='cs137'):
+        # radius in meters, phi in degrees.
+        phi = np.arange(phi_min, phi_max + 0.01, dphi)
+        # setup source at the center of the circle
+        source = Source(name='{}_center'.format(isotope), position=np.array([0., 0.]),
+                        isotope=isotope, activity_mCi=100.)
+        self.add_tracked_item(source)
+        for i in range(len(phi)):
+            object_label = '{}_{}_angle{}_radius{}'.format(object_prefix, i, phi[i], radius)
+            x_position = radius * np.sin(np.deg2rad(phi[i]))
+            y_position = radius * np.cos(np.deg2rad(phi[i]))
+            position = np.array([x_position, y_position])
+            detector_object = Detector(name=object_label, position=position, material='NaI',
+                                       orientation=phi[i] + 180.)
+            self.add_tracked_item(detector_object)
+        return
+
+    def angle_between_2geant4(self, object1_name, object2_name):
+        return 90.0 - self.angle_between(object1_name, object2_name)
+
+    def write_geant_macros(self, output_prefix, batch_name, local_output='./',
+                           output_suffix=None, nparticles=10000, macro_type='plan'):
+        # plans = self.get_tracked_objects(object_type=Plan)
+        if macro_type == 'plan':
+            # HACK: Assume single plan. quickly extract then loop.
+            stuff = self.plans.keys()
+            playlist = self.plans[list(stuff)[0]].physical_object_list
+        elif macro_type == 'ring':
+            playlist = self.get_tracked_objects(object_type=Detector)
+        counter = 1
+        double_counter = 1
+        batch_f = open(os.path.join(local_output, batch_name+'.sh'), 'w')
+        batch_f.write('#!/bin/bash\n\n')
+        print(len(playlist))
+        for detector in playlist:
+            # For ring I'm already in detector level
+            # For plan I'm in the plan level
+            # for detector in item.physical_object_list:
+            filename = os.path.join(output_prefix, batch_name + '_' + detector.name)
+            if output_suffix:
+                # filename = os.path.join(filename, output_suffix, '.mac')
+                filename = '{}_{}.mac'.format(filename, output_suffix)
+            else:
+                # filename = os.path.join(filename, '.mac')
+                filename = '{}.mac'.format(filename)
+            head, tail = os.path.split(filename)
+
+            # WRITE THE DDLISIM FILE
+            local_filename = os.path.join(local_output, tail)
+            print(local_filename)
+            single_f = open(local_filename, 'w')
+            single_f.write('\n')
+            for source in self.get_tracked_objects(object_type=Source):
+                single_f.write('/ddli/run/out_path {}.root\n'.format(filename[:-4]))
+                single_f.write('/ddli/gun/distance {} m\n'.format(
+                    self.distance_between(detector.name, source.name)))
+                # I have to convert from my coordinate system to GEANT4
+                single_f.write('/ddli/gun/angle {} degree\n'.format(
+                    self.angle_between_2geant4(detector.name, source.name)))
+                single_f.write('/run/beamOn {}\n\n'.format(nparticles))
+            single_f.close()
+
+
+            '''
+            #!/bin/bash
+
+            #PBS -N testeroony
+            #PBS -l walltime=24:00:00
+            #PBS -t 1-610
+            #PBS -l nodes=1:ppn=4
+            #PBS -q gen2
+
+            /home/cbritt2/ne692_hayward/ddli-code/geant4/${PBS_ARRAYID}.sh
+            '''
+            # IF MODULO == 0, THEN CLOSE THE GROUP_F, start a new one,
+            #    add to the qsub submission bash script
+            # WRITE THE DDLISIM BATCHER THAT SHOULD BE IN PARALLEL. ON A PER NODE BASIS
+            if counter == 1:
+                array_filename = '{}.sh'.format(double_counter)
+                array_filename = os.path.join(local_output, array_filename)
+                group_f = open(array_filename, 'w')
+                group_f.write('#!/bin/bash\n')
+                group_f.write('#PBS -N testeroony_{}\n'.format(double_counter))
+                group_f.write('#PBS -l walltime=06:00:00\n#PBS -l nodes=1:ppn=4\n#PBS -q gen2\n\n')
+                group_f.write('cd {}\n\n'.format(output_prefix))
+
+            if counter % 4 == 0:
+                group_f.write('wait\n')
+                group_f.close()
+                batch_f.write('qsub {}.sh\n'.format(double_counter))
+                array_filename = '{}.sh'.format(double_counter)
+                array_filename = os.path.join(local_output, array_filename)
+                group_f = open(array_filename, 'w')
+                group_f.write('#!/bin/bash\n')
+                group_f.write('#PBS -N testeroony_{}\n'.format(double_counter))
+                group_f.write('#PBS -l walltime=06:00:00\n#PBS -l nodes=1:ppn=4\n#PBS -q gen2\n\n')
+                group_f.write('cd {}\n\n'.format(output_prefix))
+                double_counter += 1
+
+            # ADD TO THE BATCH FILE
+            group_f.write('{}/DDLISim {} & \n'.format(output_prefix, filename))
+            counter += 1
+        if counter % 4 != 0:
+            group_f.write('wait \n')
+            group_f.close()
+        batch_f.close()
+
+
+# #!/bin/bash
+#
+# #PBS -N echotesting
+# #PBS -l walltime=00:05:00
+# #PBS -l nodes=1:ppn=2
+# #PBS -t 1-4%2
+# #PBS -q gen1
+#
+# cd /home/cbritt2/ne692_hayward
+# ./${PBS_ARRAYID}.sh
+# """))
+
+        return

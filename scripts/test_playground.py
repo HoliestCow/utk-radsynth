@@ -11,8 +11,8 @@ import numpy as np
 def main():
 
     # Define items
-    cs137_1 = Source(name='cs137_1', position=np.array([20, 20]), isotope='cs137',
-                     activity_mCi=1)
+    # cs137_1 = Source(name='cs137_1', position=np.array([20, 20]), isotope='cs137',
+    #                  activity_mCi=1)
     cs137_2 = Source(name='cs137_2', position=np.array([-25, -35]), isotope='cs137',
                      activity_mCi=0.25)
     # NOTE: Have these det positions created with a path generator.
@@ -31,7 +31,7 @@ def main():
     environment = Playground()
     # add items
     # Sources
-    environment.add_tracked_item(cs137_1)
+    # environment.add_tracked_item(cs137_1)
     environment.add_tracked_item(cs137_2)
 
     # Detectors
@@ -53,6 +53,12 @@ def main():
     fig, ax, art = environment.plotme(plot_width=8, plot_height=6, legend_position=(1.2, 1),
                                       legend_column_number=1)
     fig.savefig('test_playground.png', additional_artists=art, bbox_inches='tight')
+
+    environment.write_geant_macros(
+        output_prefix='/home/cbritt2/ne692_hayward/ddli-code/geant4',
+        output_suffix='test', local_output='/home/holiestcow/Documents/2017_fall/ne697_hayward/ddli-code/geant4/scripts/test_batch',
+        batch_name='testeroony',
+        nparticles=100000)  # 1e5
     return
 
 main()

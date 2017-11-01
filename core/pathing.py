@@ -9,7 +9,8 @@ from itertools import repeat, compress
 
 class Plan(object):
 
-    def __init__(self, listofobjects, time_step, sub_time_step):
+    def __init__(self, name=None, listofobjects=None, time_step=None, sub_time_step=None):
+        self.name = name
         self.object_list = listofobjects
         self.template_object = listofobjects[0]
         self.time_step = time_step
@@ -25,7 +26,15 @@ class Plan(object):
     def angle_between(self, coord1, coord2):
         # Angle of object2 relative to object1
         dpos = coord2 - coord1
-        angle = (np.rad2deg(np.arctan(dpos[0] / dpos[1])))
+        angle = np.rad2deg(np.arctan(dpos[1] / dpos[0]))
+        if dpos[0] >= 0 and dpos[1] >= 0:
+            angle = 90 - angle
+        elif dpos[0] <= 0 and dpos[1] <= 0:
+            angle = 270 - angle
+        elif dpos[0] >= 0 and dpos[1] <= 0:
+            angle = 90 - angle
+        elif dpos[0] <= 0 and dpos[1] >= 0:
+            angle = 270 - angle
         return angle
 
     def fill_in_the_gaps(self):
@@ -127,26 +136,28 @@ class Plan(object):
     def construct_object_lists(self):
         self.physical_object_list = []
         for i in range(len(self.sub_segments['name'])):
-            self.physical_object_list += [Detector(name=self.sub_segments['name'][i],
-                                                   position=self.sub_segments['position'][i, :],
-                                                   material=self.template_object.material,
-                                                   detector_number=self.template_object.detector_number,
-                                                   orientation=self.sub_segments['orientation'][i],
-                                                   speed=self.sub_segments['speed'][i],
-                                                   time=self.sub_segments['time'][i],
-                                                   color=self.sub_segments['color'][i])]
+            self.physical_object_list += \
+            [Detector(name=self.sub_segments['name'][i] + '_physical',
+                      position=self.sub_segments['position'][i, :],
+                      material=self.template_object.material,
+                      detector_number=self.template_object.detector_number,
+                      orientation=self.sub_segments['orientation'][i],
+                      speed=self.sub_segments['speed'][i],
+                      time=self.sub_segments['time'][i],
+                      color=self.sub_segments['color'][i])]
         self.observed_object_list = []
         self.detector_observed2physical = {}
         print(len(self.segments['name']), len(self.segments['sub_segments']))
         for i in range(len(self.segments['name'])):
-            self.observed_object_list += [Detector(name=self.segments['name'][i],
-                                                   position=self.segments['position'][i, :],
-                                                   material=self.template_object.material,
-                                                   detector_number=self.template_object.detector_number,
-                                                   orientation=self.segments['orientation'][i],
-                                                   speed=self.segments['speed'][i],
-                                                   time=self.segments['time'][i],
-                                                   color=self.segments['color'][i])]
+            self.observed_object_list += \
+            [Detector(name=self.segments['name'][i] + '_observed',
+                      position=self.segments['position'][i, :],
+                      material=self.template_object.material,
+                      detector_number=self.template_object.detector_number,
+                      orientation=self.segments['orientation'][i],
+                      speed=self.segments['speed'][i],
+                      time=self.segments['time'][i],
+                      color=self.segments['color'][i])]
             # self.detector_observed2physical[self.segments['name'][i]] = \
             mask = self.segments['sub_segments'][i]
             self.detector_observed2physical[self.segments['name'][i]] = \

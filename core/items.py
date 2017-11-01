@@ -35,20 +35,20 @@ class Source(Item):
         self.isIsotropic = isIsotropic
         return
 
-    @staticmethod
-    def setup_ring_simulation(radius=10, dphi=1, phi_min=0, phi_max=360, object_prefix='source',
-                              isotope='cs137'):
-        # radius in meters, phi in degrees.
-        phi = np.arange(phi_min, phi_max + 0.01, dphi)
-        objects = []
-        for i in range(len(phi)):
-            object_label = '{}_{}_angle{}_radius{}'.format(object_prefix, i, phi[i], radius)
-            x_position = radius * np.sin(np.deg2rad(phi[i]))
-            y_position = radius * np.cos(np.deg2rad(phi[i]))
-            position = np.array([x_position, y_position])
-            source_object = Source(name=object_label, position=position, isotope=isotope)
-            objects += [source_object]
-        return objects
+    # @staticmethod
+    # def setup_ring_simulation(radius=10, dphi=1, phi_min=0, phi_max=360, object_prefix='source',
+    #                           isotope='cs137'):
+    #     # radius in meters, phi in degrees.
+    #     phi = np.arange(phi_min, phi_max + 0.01, dphi)
+    #     objects = []
+    #     for i in range(len(phi)):
+    #         object_label = '{}_{}_angle{}_radius{}'.format(object_prefix, i, phi[i], radius)
+    #         x_position = radius * np.sin(np.deg2rad(phi[i]))
+    #         y_position = radius * np.cos(np.deg2rad(phi[i]))
+    #         position = np.array([x_position, y_position])
+    #         source_object = Source(name=object_label, position=position, isotope=isotope)
+    #         objects += [source_object]
+    #     return objects
 
 
 class Detector(Item):
@@ -61,7 +61,7 @@ class Detector(Item):
         self.orientation = orientation
         self.time = time
         # mean spectrum should be a 1d array.
-        self.mean_spectrum = np.array([])  # This is where stuff will be sampled from.
+        self.simulated_spectrum = np.array([])  # This is where stuff will be sampled from.
         self.energy_resolution = np.array([])  # this is where the energy resolution as a function of energy resides
         return
 
